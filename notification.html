@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placement Notification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        .notification {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .confirmation-message {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .rating-section {
+            margin-top: 30px;
+        }
+
+        .star {
+            color: #ccc;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        .star:hover,
+        .star.selected {
+            color: #FFD700;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="notification">
+        <h2>Your order has been placed successfully  <i class="fa fa-check-circle" aria-hidden="true"></i></h2>
+        <p class="confirmation-message">Thank you for choosing our services. Your order is confirmed, and we are processing it.</p>
+        <p class="confirmation-message">Order Number: <strong>#33333</strong></p>
+        <p class="confirmation-message">You will receive an email with further details shortly.</p>
+        <p class="confirmation-message">If you have any questions, please <a href="contact.html">contact our customer support</a>.</p>
+    
+    <br>    <div class="rating-section">
+            <p><strong>Rate your experience:</strong></p>
+            <span class="star" onclick="rateExperience(1)">&#9733;</span>
+            <span class="star" onclick="rateExperience(2)">&#9733;</span>
+            <span class="star" onclick="rateExperience(3)">&#9733;</span>
+            <span class="star" onclick="rateExperience(4)">&#9733;</span>
+            <span class="star" onclick="rateExperience(5)">&#9733;</span>
+        </div>
+    
+        <p id="selected-rating"></p>
+    
+        <script>
+            let selectedRating = 0;
+    
+            function rateExperience(rating) {
+                selectedRating = rating;
+                updateStarColors();
+                displaySelectedRating();
+            }
+    
+            function updateStarColors() {
+                const stars = document.querySelectorAll('.star');
+                stars.forEach((star, index) => {
+                    star.classList.remove('selected');
+                    if (index < selectedRating) {
+                        star.classList.add('selected');
+                    }
+                });
+            }
+    
+            function displaySelectedRating() {
+                const ratingDisplay = document.getElementById('selected-rating');
+                ratingDisplay.textContent = `You rated your experience as ${selectedRating} stars.`;
+            }
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<?php
+// Start the session
+session_start();
+// Connect to the database
+$servername = "localhost";
+$username = "testuser";
+$password = "test123";
+$dbname = "Queen_Wharf_Foods_Database";
+
+// Create a new mysqli object
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check for connection errors
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
+// Get the customer_id from the session
+$customer_id = $_SESSION['user_id'];
+// Get the other values from the form data
+$product_id = $_POST["product_id"];
+$variation_id = $_POST["variation_id"];
+$total = $_POST["price"];
+$quantity = $_POST["qty"];
+$item_total = $total * $quantity;
+
+// Format the totals with two decimal places
+$total = number_format($total, 2, ".", "");
+$item_total = number_format($item_total, 2, ".", "");
+
+// Prepare an SQL statement to insert the form data into the product configuration table
+// Omit the product configuration id column from the statement
+$sql = "INSERT INTO Product_configuration (Product_id, Variation_id, Total) VALUES (?, ?, ?)";
+$stmt = $conn->prepare($sql);
+// Bind the form data to the parameters of the SQL statement
+$stmt->bind_param("iis", $product_id, $variation_id, $total); // Use "s" for string type
+
+// Execute the SQL statement
+if ($stmt->execute()) {
+  // If the insertion is successful, get the last inserted id
+  $product_configuration_id = $stmt->insert_id;
+}
+  // Get the user_id from the session
+  $customer_id = $_SESSION['user_id'];
+
+  // Prepare an SQL statement to insert the cart items using a subquery
+  $sql2 = "INSERT INTO cart_item (Cart_id, Product_Configuration_id, Quantity, Total) SELECT c.Id, ?, ?, ? FROM (SELECT Id FROM Cart WHERE Customer_id = ?) c";
+  $stmt2 = $conn->prepare($sql2);
+  // Bind the data to the parameters of the SQL statement
+  $stmt2->bind_param("iiis", $customer_id, $product_configuration_id, $quantity, $item_total); // Use "s" for string type
+  // Execute the SQL statement
+  if ($stmt2->execute()) {
+    // If the insertion is successful, update the cart total by adding the item total
+    $sql3 = "UPDATE cart SET Total = Total + ? WHERE Customer_id = ?";
+    $stmt3 = $conn->prepare($sql3);
+    // Bind the data to the parameters of the SQL statement
+    $stmt3->bind_param("si", $item_total, $customer_id); // Use "s" for string type
+    // Execute the SQL statement
+    if ($stmt3->execute()) {
+      // If the update is successful, redirect the user to the cart.php page or display a success message
+      header("Location: cart.php");
+      //echo "Item added to cart successfully";
+    } else {
+      // If the update fails, display an error message
+      echo "Error: " . $stmt3->error;
+    }
+    // Close the statement
+    $stmt3->close();
+  } else {
+    // If the insertion fails, display an error message
+    echo "Error: " . $stmt2->error;
+  }
+  // Close the statement
+// Close the connection
+$conn->close();
+?>
